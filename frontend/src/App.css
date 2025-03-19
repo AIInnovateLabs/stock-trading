@@ -1,0 +1,22 @@
+.layout {
+  min-height: 100vh;
+}
+
+.header {
+  background: #fff;
+  padding: 0 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header h1 {
+  margin: 0;
+  color: #1890ff;
+  font-size: 20px;
+  line-height: 64px;
+}
+
+.content {
+  padding: 24px;
+  background: #f0f2f5;
+  min-height: 280px;
+} 

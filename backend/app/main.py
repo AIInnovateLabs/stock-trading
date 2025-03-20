@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api.v1.endpoints import stocks, analysis
 from app.db.init_db import init_db
+from app.api.v1.api import api_router
 
 # 初始化数据库
 init_db()
@@ -39,6 +40,7 @@ app.include_router(
     tags=["analysis"],
     responses={404: {"description": "Not found"}},
 )
+app.include_router(api_router, prefix="/api/v1")
 
 @app.get("/", tags=["root"])
 def read_root():

@@ -26,6 +26,48 @@
 - 404: 资源不存在
 - 500: 服务器内部错误
 
+## 调试接口
+
+### 获取数据库信息
+
+获取数据库表信息和示例数据。
+
+- **接口**: `GET /api/v1/debug/db-info`
+- **描述**: 获取数据库中的表信息和部分示例数据
+- **返回数据**:
+  ```json
+  {
+    "tables": [
+      {
+        "name": "stock_basics",
+        "count": 0
+      },
+      {
+        "name": "stock_trades",
+        "count": 0
+      }
+    ],
+    "stockBasics": [
+      {
+        "code": "string",
+        "name": "string",
+        "industry": "string",
+        "market": "string",
+        "update_time": "string"
+      }
+    ],
+    "stockTrades": [
+      {
+        "stock_id": "string",
+        "trade_date": "string",
+        "open_price": 0,
+        "close_price": 0,
+        "volume": 0
+      }
+    ]
+  }
+  ```
+
 ## 接口列表
 
 ### 股票基础数据
@@ -69,6 +111,26 @@ POST /stocks/basics/update
 }
 ```
 
+#### 获取单个股票详情
+
+```http
+GET /stocks/basics/{code}
+```
+
+路径参数：
+- `code`: 股票代码
+
+响应示例：
+```json
+{
+    "code": "000001",
+    "name": "平安银行",
+    "industry": "银行",
+    "market": "主板",
+    "update_time": "2024-03-20T10:00:00Z"
+}
+```
+
 ### 股票交易数据
 
 #### 获取股票交易数据
@@ -77,32 +139,39 @@ POST /stocks/basics/update
 GET /stocks/trades/{stock_code}
 ```
 
-路径参数：
+**参数说明：**
 - `stock_code`: 股票代码
 
-查询参数：
-- `start_date`: 开始日期（YYYY-MM-DD）
-- `end_date`: 结束日期（YYYY-MM-DD）
-- `skip`: 跳过记录数（默认：0）
-- `limit`: 返回记录数（默认：100，最大：100）
-
-响应示例：
+**响应格式：**
 ```json
-[
+{
+  "code": 0,
+  "message": "success",
+  "items": [
     {
-        "stock_code": "000001",
-        "trade_date": "2024-03-20T00:00:00Z",
-        "open_price": 10.5,
-        "high_price": 11.2,
-        "low_price": 10.3,
-        "close_price": 11.0,
-        "volume": 1000000,
-        "amount": 11000000,
-        "change_percent": 0.5,
-        "update_time": "2024-03-20T15:00:00Z"
+      "trade_date": "2024-01-01",
+      "open_price": 10.5,
+      "close_price": 11.2,
+      "high_price": 11.5,
+      "low_price": 10.3,
+      "volume": 1000000,
+      "amount": 11200000
     }
-]
+  ],
+  "total": 1
+}
 ```
+
+**响应字段说明：**
+- `items`: 交易数据列表
+  - `trade_date`: 交易日期
+  - `open_price`: 开盘价
+  - `close_price`: 收盘价
+  - `high_price`: 最高价
+  - `low_price`: 最低价
+  - `volume`: 成交量
+  - `amount`: 成交额
+- `total`: 总记录数
 
 ### 技术分析
 

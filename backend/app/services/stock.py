@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 import akshare as ak
 import pandas as pd
@@ -231,4 +231,141 @@ def get_stock_trades(
     except Exception as e:
         logger.error(f"获取股票{stock_code}交易数据失败：{str(e)}")
         logger.error("错误详情：", exc_info=True)
+        raise e
+
+def get_stock_basic(db: Session, code: str):
+    """获取单个股票基础数据"""
+    try:
+        logger.info(f"开始获取股票 {code} 的基础数据")
+        
+        stock = db.query(StockBasic).filter(StockBasic.code == code).first()
+        
+        if stock:
+            logger.info(f"成功获取股票 {code} 的基础数据")
+        else:
+            logger.warning(f"股票 {code} 不存在")
+            
+        return stock
+        
+    except Exception as e:
+        logger.error(f"获取股票 {code} 基础数据失败：{str(e)}")
+        logger.error("错误详情：", exc_info=True)
+        raise e
+
+def update_stock_trades(db: Session, stock_code: str = None, days: int = 30):
+    """更新股票交易数据
+    
+    Args:
+        db (Session): 数据库会话
+        stock_code (str, optional): 股票代码。如果不指定，则更新所有股票
+        days (int, optional): 要获取的天数。默认30天
+    """
+    try:
+        logger.info(f"开始更新股票交易数据：stock_code={stock_code}, days={days}")
+        
+        # 确定要更新的股票列表
+        if stock_code:
+            stocks = db.query(StockBasic).filter(StockBasic.code == stock_code).all()
+        else:
+            stocks = db.query(StockBasic).all()
+            
+        if not stocks:
+            logger.warning(f"没有找到需要更新的股票")
+            return {"message": "没有找到需要更新的股票", "updated_count": 0}
+            
+        total_updated = 0
+        error_count = 0
+        
+        for stock in stocks:
+            try:
+                logger.info(f"正在获取股票 {stock.code} 的交易数据...")
+                
+                # 使用 akshare 获取股票历史数据
+                try:
+                    # 尝试使用东方财富接口
+                    df = ak.stock_zh_a_hist(symbol=stock.code, period="daily", 
+                                          start_date=(datetime.now() - timedelta(days=days)).strftime("%Y%m%d"),
+                                          end_date=datetime.now().strftime("%Y%m%d"),
+                                          adjust="qfq")
+                    logger.info(f"使用东方财富接口获取 {stock.code} 交易数据成功")
+                except Exception as e:
+                    logger.error(f"获取股票 {stock.code} 交易数据失败：{str(e)}")
+                    error_count += 1
+                    continue
+                
+                if df.empty:
+                    logger.warning(f"股票 {stock.code} 没有交易数据")
+                    continue
+                    
+                # 重命名列
+                df = df.rename(columns={
+                    "日期": "trade_date",
+                    "开盘": "open_price",
+                    "最高": "high_price",
+                    "最低": "low_price",
+                    "收盘": "close_price",
+                    "成交量": "volume",
+                    "成交额": "amount"
+                })
+                
+                # 转换日期格式
+                df["trade_date"] = pd.to_datetime(df["trade_date"])
+                
+                # 更新数据库
+                for _, row in df.iterrows():
+                    # 检查是否已存在该日期的数据
+                    existing = db.query(StockTrade).filter(
+                        StockTrade.stock_id == stock.id,
+                        StockTrade.trade_date == row["trade_date"]
+                    ).first()
+                    
+                    trade_data = {
+                        "stock_id": stock.id,
+                        "trade_date": row["trade_date"],
+                        "open_price": row["open_price"],
+                        "high_price": row["high_price"],
+                        "low_price": row["low_price"],
+                        "close_price": row["close_price"],
+                        "volume": row["volume"],
+                        "amount": row["amount"]
+                    }
+                    
+                    if existing:
+                        # 更新现有记录
+                        for key, value in trade_data.items():
+                            setattr(existing, key, value)
+                    else:
+                        # 创建新记录
+                        db_trade = StockTrade(**trade_data)
+                        db.add(db_trade)
+                    
+                    total_updated += 1
+                
+                logger.info(f"股票 {stock.code} 的交易数据更新成功")
+                
+            except Exception as e:
+                error_count += 1
+                logger.error(f"处理股票 {stock.code} 交易数据时出错：{str(e)}")
+                logger.error("错误详情：", exc_info=True)
+                continue
+        
+        try:
+            db.commit()
+            logger.info("数据库事务提交成功")
+        except Exception as e:
+            logger.error(f"数据库事务提交失败：{str(e)}")
+            logger.error("错误详情：", exc_info=True)
+            db.rollback()
+            raise e
+        
+        return {
+            "message": "股票交易数据更新成功",
+            "updated_count": total_updated,
+            "error_count": error_count
+        }
+        
+    except Exception as e:
+        logger.error(f"更新股票交易数据失败：{str(e)}")
+        logger.error("错误详情：", exc_info=True)
+        db.rollback()
         raise e 

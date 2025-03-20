@@ -19,4 +19,33 @@
   padding: 24px;
   background: #f0f2f5;
   min-height: 280px;
+}
+
+.debug-button {
+  position: fixed !important;
+  right: 24px !important;
+  bottom: 24px !important;
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 50% !important;
+  opacity: 0.5;
+  transition: all 0.3s ease !important;
+  z-index: 1000;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #1890ff !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+}
+
+.debug-button:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.5);
+}
+
+.debug-button .anticon {
+  font-size: 24px;
 } 

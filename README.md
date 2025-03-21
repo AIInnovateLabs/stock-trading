@@ -172,10 +172,6 @@ sudo nginx -s reload
 4. 推送到分支
 5. 创建Pull Request
 
-## 许可证
-
-MIT License
-
 ## 环境要求
 
 ### Docker 环境配置
@@ -236,7 +232,7 @@ cd stock-trading
 
 2. 启动服务：
 ```bash
-docker compose up --build
+docker-compose up --build
 ```
 
 ## 访问服务
@@ -311,4 +307,4 @@ stock-trading/
 
 ## 许可证
 
-[添加许可证信息] 
+MIT License

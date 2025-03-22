@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Table, Card, Input, Select, Space, Button, message } from 'antd'
-import { SearchOutlined } from '@ant-design/icons'
+import { useNavigate } from 'react-router-dom'
 import { AppDispatch, RootState } from '../store'
 import { fetchStockList } from '../store/slices/stockSlice'
-import { useNavigate } from 'react-router-dom'
 
 const { Search } = Input
 const { Option } = Select
@@ -12,7 +11,7 @@ const { Option } = Select
 const StockList = () => {
   const dispatch = useDispatch<AppDispatch>()
   const navigate = useNavigate()
-  const { stockList, total, loading, error } = useSelector((state: RootState) => state.stock)
+  const { stockList, total, loading } = useSelector((state: RootState) => state.stock)
   
   const [searchText, setSearchText] = useState('')
   const [industry, setIndustry] = useState<string>()

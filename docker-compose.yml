@@ -6,29 +6,29 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/.htpasswd:/etc/nginx/.htpasswd:ro
+      - frontend_build:/usr/share/nginx/html:ro
     depends_on:
-      - frontend
-      - backend
-      - flower
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_started
+      flower:
+        condition: service_started
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     expose:
-      - "5173"
+      - "80"
     volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    environment:
-      - VITE_API_URL=/api
-    depends_on:
-      - backend
+      - frontend_build:/usr/share/nginx/html
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
     expose:
       - "8000"
     volumes:
@@ -39,8 +39,16 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
   celery_worker:
     build:
@@ -79,6 +87,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     command: celery -A app.worker flower --port=5555
+    volumes:
+      - ./backend:/app
     expose:
       - "5555"
     environment:
@@ -98,6 +108,12 @@ services:
       - POSTGRES_DB=stockdb
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d stockdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
   redis:
     image: redis:latest
@@ -108,4 +124,5 @@ services:
 
 volumes:
   postgres_data:
-  redis_data: 
+  redis_data:
+  frontend_build: 

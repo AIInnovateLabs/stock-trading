@@ -1,10 +1,10 @@
 from sqlalchemy import text
-from app.db.session import engine
+from app.db.session import sqlite_engine
 
 def migrate_add_update_time():
     """添加update_time字段到stock_basics表"""
     try:
-        with engine.connect() as connection:
+        with sqlite_engine.connect() as connection:
             # 检查表是否存在
             result = connection.execute(text("""
                 SELECT name FROM sqlite_master 

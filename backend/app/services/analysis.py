@@ -3,9 +3,14 @@ import numpy as np
 from typing import List, Dict
 from datetime import datetime, timedelta
 
+def handle_nan(value):
+    """处理NaN值，将其转换为None"""
+    return None if pd.isna(value) else float(value)
+
 def calculate_ma(prices: List[float], period: int) -> List[float]:
     """计算移动平均线"""
-    return pd.Series(prices).rolling(window=period).mean().tolist()
+    ma_values = pd.Series(prices).rolling(window=period).mean().tolist()
+    return [handle_nan(x) for x in ma_values]
 
 def calculate_macd(prices: List[float], fast_period: int = 12, slow_period: int = 26, signal_period: int = 9) -> Dict[str, List[float]]:
     """计算MACD指标"""
@@ -25,9 +30,9 @@ def calculate_macd(prices: List[float], fast_period: int = 12, slow_period: int 
     macd_hist = macd_line - signal_line
     
     return {
-        "macd_line": macd_line.tolist(),
-        "signal_line": signal_line.tolist(),
-        "macd_hist": macd_hist.tolist()
+        "macd_line": [handle_nan(x) for x in macd_line.tolist()],
+        "signal_line": [handle_nan(x) for x in signal_line.tolist()],
+        "macd_hist": [handle_nan(x) for x in macd_hist.tolist()]
     }
 
 def calculate_rsi(prices: List[float], period: int = 14) -> List[float]:
@@ -45,7 +50,7 @@ def calculate_rsi(prices: List[float], period: int = 14) -> List[float]:
     rs = gain / loss
     rsi = 100 - (100 / (1 + rs))
     
-    return rsi.tolist()
+    return [handle_nan(x) for x in rsi.tolist()]
 
 def calculate_bollinger_bands(prices: List[float], period: int = 20, std_dev: int = 2) -> Dict[str, List[float]]:
     """计算布林带"""
@@ -62,14 +67,15 @@ def calculate_bollinger_bands(prices: List[float], period: int = 20, std_dev: in
     lower_band = middle_band - (std * std_dev)
     
     return {
-        "middle_band": middle_band.tolist(),
-        "upper_band": upper_band.tolist(),
-        "lower_band": lower_band.tolist()
+        "middle_band": [handle_nan(x) for x in middle_band.tolist()],
+        "upper_band": [handle_nan(x) for x in upper_band.tolist()],
+        "lower_band": [handle_nan(x) for x in lower_band.tolist()]
     }
 
 def calculate_volume_ma(volumes: List[int], period: int = 5) -> List[float]:
     """计算成交量移动平均"""
-    return pd.Series(volumes).rolling(window=period).mean().tolist()
+    volume_ma = pd.Series(volumes).rolling(window=period).mean().tolist()
+    return [handle_nan(x) for x in volume_ma]
 
 def calculate_price_change(prices: List[float]) -> Dict[str, float]:
     """计算价格变化"""
@@ -78,6 +84,9 @@ def calculate_price_change(prices: List[float]) -> Dict[str, float]:
     
     current_price = prices[-1]
     previous_price = prices[-2] if len(prices) > 1 else prices[0]
+    
+    if pd.isna(current_price) or pd.isna(previous_price):
+        return {"change": 0, "change_percent": 0}
     
     change = current_price - previous_price
     change_percent = (change / previous_price) * 100

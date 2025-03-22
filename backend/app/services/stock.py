@@ -218,6 +218,7 @@ def get_stock_trades(
         total = query.count()
         logger.info(f"符合条件的记录总数：{total}")
         
+        # 按时间倒序获取最近的数据
         items = query.order_by(StockTrade.trade_date.desc()).offset(skip).limit(limit).all()
         logger.info(f"成功获取{len(items)}条记录")
         

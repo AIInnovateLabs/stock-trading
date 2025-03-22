@@ -1,310 +1,257 @@
-# 股票交易系统
+# 股票交易分析系统
 
-一个基于FastAPI和React的股票交易系统，提供股票数据获取、分析和导出功能。
+📈 一个现代化的股票交易分析系统，基于 FastAPI 和 React 构建，提供实时数据分析、技术指标计算和可视化展示功能。这是一个完全由 AI 辅助开发的开源项目，展示了 AI 时代下的开发新范式。
 
-## 功能特点
+![技术分析](docs/imgs/analysis.png)
 
-- 股票基础数据管理
-- 股票交易数据查询
-- 技术分析指标计算
-- 数据导出（CSV/Excel）
-- RESTful API接口
-- Swagger API文档
+## 🌟 项目愿景
 
-## 技术栈
+在 AI 蓬勃发展的新时代，我们希望：
+
+- 🤝 **降低金融技术门槛**
+  - 让更多人能够参与量化交易
+  - 提供直观易用的分析工具
+  - 降低策略开发难度
+
+- 🌈 **开源共建生态**
+  - 鼓励社区贡献和创新
+  - 共享优质策略和经验
+  - 促进知识交流与成长
+
+- 🔬 **探索 AI 开发新范式**
+  - 展示 AI 辅助开发的可能性
+  - 推动技术创新与实践
+  - 分享开发经验与心得
+
+## ✨ 核心特性
+
+- 🔍 **实时数据分析**
+  - 支持实时股票数据获取和分析
+  - 自动计算常用技术指标（MACD、RSI、布林带等）
+  - 智能数据验证和异常处理
+
+- 📊 **专业技术分析**
+  - 多维度技术指标展示
+  - 交互式图表分析
+  - 自定义时间区间分析
+
+- 📱 **现代化界面**
+  - 响应式设计，支持多设备访问
+  - 直观的数据可视化
+  - 用户友好的操作界面
+
+- 💾 **数据管理**
+  - 支持数据导出（CSV/Excel）
+  - 历史数据回溯
+  - 数据完整性校验
+
+## 🔮 未来规划
+
+### 🤖 量化交易策略
+
+- **策略开发框架**
+  - 支持 Python/JavaScript 策略编写
+  - 内置常用指标和工具函数
+  - 提供策略模板和示例
+  - 支持实时策略调试
+  - AI 辅助策略生成
+
+- **多维度策略分析**
+  - 技术指标组合策略
+  - 机器学习模型集成
+  - 情绪分析和新闻事件驱动
+  - 多标的联动交易
+  - 大语言模型市场分析
+
+- **智能策略优化**
+  - 遗传算法自动优化参数
+  - 机器学习模型自适应
+  - 动态风险控制
+  - 多目标优化支持
+  - AI 策略诊断与优化
+
+### 📊 回测系统
+
+- **高性能回测引擎**
+  - 支持多级别时间周期
+  - T+0/T+1 交易规则
+  - 精确的手续费模型
+  - 支持并行回测
+  - 云原生分布式架构
+
+- **场景模拟**
+  - 历史市场情景重现
+  - 极端行情测试
+  - 随机市场模拟
+  - 多市场联动测试
+  - AI 生成对抗市场
+
+- **性能分析**
+  - 详细的交易记录
+  - 策略绩效评估
+  - 风险指标分析
+  - 归因分析报告
+  - AI 辅助策略诊断
+
+### 📱 增强功能
+
+- **智能助手**
+  - 策略开发助手
+  - 市场分析助手
+  - 风险管理助手
+  - 自然语言交互
+  - 个性化投资建议
+
+- **社区生态**
+  - 策略分享与复制
+  - 量化社区讨论
+  - 策略排行榜
+  - 导师系统
+  - 知识库建设
+
+### 🔧 技术升级
+
+- **AI 能力**
+  - 大语言模型集成
+  - 市场预测模型
+  - 智能风控系统
+  - 自动化运维
+  - 持续学习优化
+
+- **数据生态**
+  - 多市场数据接入
+  - 另类数据分析
+  - 实时数据处理
+  - 数据质量保证
+  - 数据可视化增强
+
+## 🖥 界面展示
+
+### 股票列表
+![股票列表](docs/imgs/list.png)
+
+### 股票详情
+![股票详情](docs/imgs/detail.png)
+
+### 技术分析
+![技术分析](docs/imgs/analysis.png)
+
+## 🛠 技术栈
 
 ### 后端
-- FastAPI
-- SQLAlchemy
-- Pandas
-- NumPy
-- Akshare
+- 🚀 FastAPI - 高性能异步 Web 框架
+- 📦 SQLAlchemy - ORM 框架
+- 📊 Pandas & NumPy - 数据处理
+- 📈 Akshare - 金融数据接口
 
 ### 前端
-- React
-- TypeScript
-- Ant Design
-- ECharts
+- ⚛️ React - 用户界面框架
+- 📝 TypeScript - 类型安全
+- 🎨 Ant Design - UI 组件库
+- 📊 AntV G2 - 数据可视化
 
-## 项目结构
+## 🚀 快速开始
 
-```
-stock-trading/
-├── backend/                # 后端项目目录
-│   ├── app/               # 应用主目录
-│   │   ├── api/          # API路由
-│   │   ├── core/         # 核心配置
-│   │   ├── db/           # 数据库相关
-│   │   ├── models/       # 数据模型
-│   │   ├── schemas/      # Pydantic模型
-│   │   └── services/     # 业务逻辑
-│   ├── tests/            # 测试用例
-│   └── requirements.txt  # 依赖包
-├── frontend/             # 前端项目目录
-│   ├── src/             # 源代码
-│   ├── public/          # 静态资源
-│   └── package.json     # 依赖配置
-└── docs/                # 文档目录
-```
+### 使用 Docker（推荐）
 
-## 运行说明
-
-### 后端运行
-
-1. 创建并激活虚拟环境：
 ```bash
+# 克隆项目
+git clone <repository_url>
+cd stock-trading
+
+# 启动服务
+docker-compose up --build
+```
+
+### 手动安装
+
+<details>
+<summary>展开查看详细步骤</summary>
+
+#### 后端设置
+
+```bash
+# 1. 创建虚拟环境
 cd backend
 python -m venv venv
 source venv/bin/activate  # Linux/Mac
 # 或
 .\venv\Scripts\activate  # Windows
-```
 
-2. 安装依赖：
-```bash
+# 2. 安装依赖
 pip install -r requirements.txt
-```
 
-3. 配置环境变量：
-```bash
+# 3. 配置环境变量
 cp .env.example .env
-# 编辑 .env 文件，设置必要的环境变量
-```
+# 编辑 .env 文件
 
-4. 运行应用：
-```bash
+# 4. 运行服务
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### 前端运行
+#### 前端设置
 
-1. 安装依赖：
 ```bash
+# 1. 安装依赖
 cd frontend
 npm install
-```
 
-2. 配置环境变量：
-```bash
+# 2. 配置环境变量
 cp .env.example .env
-# 编辑 .env 文件，设置API地址等配置
-```
+# 编辑 .env 文件
 
-3. 运行开发服务器：
-```bash
+# 3. 运行开发服务器
 npm run dev
 ```
 
-## API文档
+</details>
 
-启动后端服务后，可以通过以下地址访问API文档：
+## 📚 文档
 
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+- [项目架构](docs/architecture.md)
+- [API 文档](docs/api.md)
+- [开发指南](docs/development.md)
+- [数据库设计](docs/database.md)
+- [前端文档](docs/frontend.md)
+- [Docker 配置](docs/docker-setup.md)
 
-## 主要API接口
+## 🔗 服务地址
 
-### 股票基础数据
-- GET /api/v1/stocks/basics - 获取股票基础数据列表
-- POST /api/v1/stocks/basics/update - 更新股票基础数据
+服务启动后，可通过以下地址访问：
 
-### 股票交易数据
-- GET /api/v1/stocks/trades/{stock_code} - 获取指定股票的交易数据
+- 📱 前端应用：http://localhost/
+- 🚀 API 文档：http://localhost/docs
+- 📊 ReDoc：http://localhost/redoc
 
-### 技术分析
-- GET /api/v1/analysis/indicators/{stock_code} - 获取技术指标数据
-- GET /api/v1/analysis/export/basics - 导出股票基础数据
-- GET /api/v1/analysis/export/trades/{stock_code} - 导出股票交易数据
-- GET /api/v1/analysis/export/analysis/{stock_code} - 导出分析结果
+## 🤝 参与贡献
 
-## 开发说明
+我们欢迎所有形式的贡献，无论是：
 
-### 代码规范
-- 使用Black进行代码格式化
-- 使用isort进行导入排序
-- 使用pylint进行代码检查
+- 💡 新功能建议
+- 🐛 问题报告
+- 📝 文档改进
+- 🎨 界面优化
+- 🔧 代码贡献
 
-### 测试
-```bash
-cd backend
-pytest tests/ -v
-```
+详细贡献指南：
 
-### 数据库迁移
-```bash
-cd backend
-alembic upgrade head
-```
+1. Fork 本项目
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 提交 Pull Request
 
-## 部署说明
+## 📄 开源协议
 
-### 后端部署
-1. 构建Docker镜像：
-```bash
-cd backend
-docker build -t stock-trading-backend .
-```
+本项目采用 MIT 协议 - 查看 [LICENSE](LICENSE) 文件了解详细信息。
 
-2. 运行容器：
-```bash
-docker run -d -p 8000:8000 stock-trading-backend
-```
+## 🙏 致谢
 
-### 前端部署
-1. 构建生产版本：
-```bash
-cd frontend
-npm run build
-```
-
-2. 使用Nginx部署：
-```bash
-# 配置Nginx
-sudo cp nginx.conf /etc/nginx/conf.d/stock-trading.conf
-sudo nginx -s reload
-```
-
-## 贡献指南
-
-1. Fork 项目
-2. 创建特性分支
-3. 提交更改
-4. 推送到分支
-5. 创建Pull Request
-
-## 环境要求
-
-### Docker 环境配置
-
-如果您在使用 Docker 时遇到镜像拉取问题，请参考 [Docker 环境配置指南](docs/docker-setup.md)。
-
-### macOS 环境设置（使用 Colima）
-
-如果您使用 macOS 且不想安装 Docker Desktop，可以使用 Colima 作为替代方案：
-
-1. 安装必要的工具：
-```bash
-# 安装 Homebrew（如果尚未安装）
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# 安装 Docker CLI 和相关工具
-brew install docker
-brew install docker-compose
-brew install colima
-brew install docker-credential-helper
-```
-
-2. 启动 Colima：
-```bash
-colima start
-```
-
-3. 配置 Docker 环境：
-```bash
-# 创建 Docker 配置
-mkdir -p ~/.docker
-echo '{"auths":{}}' > ~/.docker/config.json
-
-# 设置 Docker socket 路径
-export DOCKER_HOST="unix://${HOME}/.colima/default/docker.sock"
-
-# 可选：将环境变量添加到 shell 配置文件中
-echo 'export DOCKER_HOST="unix://${HOME}/.colima/default/docker.sock"' >> ~/.zshrc  # 如果使用 zsh
-# 或
-echo 'export DOCKER_HOST="unix://${HOME}/.colima/default/docker.sock"' >> ~/.bashrc  # 如果使用 bash
-```
-
-### 使用 Docker Desktop（替代方案）
-
-如果您更喜欢使用 Docker Desktop：
-
-1. 从 [Docker 官网](https://www.docker.com/products/docker-desktop) 下载并安装 Docker Desktop
-2. 启动 Docker Desktop 应用程序
-3. 等待 Docker Desktop 完全启动（状态栏图标变成静止状态）
-
-## 项目设置
-
-1. 克隆项目：
-```bash
-git clone <repository_url>
-cd stock-trading
-```
-
-2. 启动服务：
-```bash
-docker-compose up --build
-```
-
-## 访问服务
-
-服务启动后，可以通过以下地址访问：
-
-- 前端应用：http://localhost/
-- 后端 API：http://localhost/api/
-- Flower 监控：http://localhost/flower/
-  - 用户名：admin
-  - 密码：admin
-
-## 项目结构
-
-```
-stock-trading/
-├── frontend/          # React 前端应用
-├── backend/           # FastAPI 后端应用
-├── nginx/            # Nginx 配置文件
-│   ├── nginx.conf
-│   └── .htpasswd
-└── docker-compose.yml # Docker 服务配置
-```
-
-## 服务说明
-
-- **前端**：React + Vite 开发的 Web 界面
-- **后端**：FastAPI 提供的 RESTful API
-- **Nginx**：反向代理服务器，处理前端和后端的请求转发
-- **PostgreSQL**：数据库服务
-- **Redis**：缓存和消息队列
-- **Celery**：异步任务处理
-- **Flower**：Celery 任务监控界面
-
-## 开发说明
-
-### 环境变量
-
-项目使用 `.env` 文件管理环境变量，主要包括：
-
-- 数据库配置
-- Redis 配置
-- API 地址配置
-- 其他服务配置
-
-### 调试
-
-- 前端开发服务器支持热重载
-- 后端服务也配置了开发模式的热重载
-- 可以通过 Flower 界面监控异步任务的执行情况
-
-## 常见问题
-
-1. **Docker 守护进程连接问题**
-   - 检查 Docker 是否正在运行
-   - 确认 DOCKER_HOST 环境变量设置正确
-
-2. **端口占用问题**
-   - 确保 80、5432、6379 等端口未被其他服务占用
-
-3. **权限问题**
-   - 确保当前用户有权限访问 Docker socket
-   - 确保项目目录具有正确的权限
-
-## 贡献指南
-
-1. Fork 项目
-2. 创建特性分支
-3. 提交更改
-4. 推送到分支
-5. 创建 Pull Request
-
-## 许可证
-
-MIT License
+- 感谢所有贡献者的付出
+- 感谢 AI 技术带来的开发新范式
+- 感谢以下开源项目：
+  - [FastAPI](https://fastapi.tiangolo.com/)
+  - [React](https://reactjs.org/)
+  - [Ant Design](https://ant.design/)
+  - [AntV G2](https://g2.antv.vision/)
+  - [Akshare](https://www.akshare.xyz/)

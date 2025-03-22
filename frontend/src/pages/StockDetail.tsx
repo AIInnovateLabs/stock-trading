@@ -32,6 +32,9 @@ interface ChartData {
   min: number
   volumn: number
   money: number
+  ma5?: number
+  ma10?: number
+  ma20?: number
 }
 
 // 日期格式化函数
@@ -46,16 +49,22 @@ const formatDate = (dates: string[]) => {
     return dates.map(date => date.substring(5)) // 返回 MM-DD 格式
   }
   
-  // 如果有多年，第一个日期显示完整年份，之后的日期根据年份是否变化决定是否显示年份
-  let currentYear = ''
-  return dates.map((date, index) => {
-    const year = date.substring(0, 4)
-    if (index === 0 || year !== currentYear) {
-      currentYear = year
-      return date // 返回 YYYY-MM-DD 格式
+  // 如果有多年，所有日期都显示完整年份
+  return dates.map(date => date) // 返回 YYYY-MM-DD 格式
+}
+
+// 计算移动平均线
+const calculateMA = (data: number[], period: number): number[] => {
+  const result: number[] = []
+  for (let i = 0; i < data.length; i++) {
+    if (i < period - 1) {
+      result.push(NaN)
+      continue
     }
-    return date.substring(5) // 返回 MM-DD 格式
-  })
+    const sum = data.slice(i - period + 1, i + 1).reduce((a, b) => a + b, 0)
+    result.push(sum / period)
+  }
+  return result
 }
 
 const StockDetail: React.FC = () => {
@@ -76,7 +85,11 @@ const StockDetail: React.FC = () => {
       try {
         setChartLoading(true)
         const response = await axios.get<ApiResponse>(`/api/v1/stocks/trades/${code}`)
-        setTrades(response.data.items)
+        // 按日期升序排序
+        const sortedTrades = response.data.items.sort((a, b) => 
+          new Date(a.trade_date).getTime() - new Date(b.trade_date).getTime()
+        )
+        setTrades(sortedTrades)
       } catch (error) {
         message.error('获取交易数据失败')
         console.error('Error fetching stock trades:', error)
@@ -96,16 +109,30 @@ const StockDetail: React.FC = () => {
     // 获取所有日期并格式化
     const dates = trades.map(trade => trade.trade_date)
     const formattedDates = formatDate(dates)
+    const closePrices = trades.map(trade => trade.close_price)
+
+    // 计算MA线
+    const ma5Data = calculateMA(closePrices, 5)
+    const ma10Data = calculateMA(closePrices, 10)
+    const ma20Data = calculateMA(closePrices, 20)
+
+    // 格式化数字，保留3位小数
+    const formatNumber = (value: number) => {
+      return Number(value.toFixed(3));
+    }
 
     // 转换数据格式
     const chartData: ChartData[] = trades.map((trade, index) => ({
       time: formattedDates[index],
-      start: trade.open_price,
-      end: trade.close_price,
-      max: trade.high_price,
-      min: trade.low_price,
+      start: formatNumber(trade.open_price),
+      end: formatNumber(trade.close_price),
+      max: formatNumber(trade.high_price),
+      min: formatNumber(trade.low_price),
       volumn: trade.volume,
-      money: trade.amount
+      money: trade.amount,
+      ma5: ma5Data[index] ? formatNumber(ma5Data[index]) : undefined,
+      ma10: ma10Data[index] ? formatNumber(ma10Data[index]) : undefined,
+      ma20: ma20Data[index] ? formatNumber(ma20Data[index]) : undefined
     }))
 
     const chart = new Chart({
@@ -116,34 +143,68 @@ const StockDetail: React.FC = () => {
     chart
       .data(chartData)
       .encode('x', 'time')
+      .encode('y', ['start', 'end'])
       .encode('color', (d: ChartData) => {
-        const trend = Math.sign(d.start - d.end)
-        return trend > 0 ? '下跌' : trend === 0 ? '不变' : '上涨'
+        const trend = Math.sign(d.end - d.start)
+        return trend > 0 ? '上涨' : trend === 0 ? '不变' : '下跌'
       })
       .scale('x', {
-        compare: (a: string, b: string) => {
-          // 为了正确排序，在比较时需要添加年份（如果被省略）
-          const getFullDate = (date: string) => {
-            if (date.length <= 5) { // 如果是 MM-DD 格式
-              // 使用第一个日期的年份
-              const firstYear = trades[0].trade_date.substring(0, 4)
-              return `${firstYear}-${date}`
-            }
-            return date
-          }
-          return new Date(getFullDate(a)).getTime() - new Date(getFullDate(b)).getTime()
-        },
+        type: 'band',
+        paddingInner: 0.2,
+        paddingOuter: 0.1
+      })
+      .scale('y', {
+        nice: true,
+        tickCount: 8,
+        label: {
+          formatter: (v: number) => v.toFixed(2)
+        }
       })
       .scale('color', {
         domain: ['下跌', '不变', '上涨'],
-        range: ['#4daf4a', '#999999', '#e41a1c'],
+        range: ['#33b31d', '#999999', '#e41a1c']
+      })
+      .axis('y', {
+        title: '价格',
+        grid: {
+          line: {
+            style: {
+              stroke: '#E8E8E8',
+              lineDash: [2, 2]
+            }
+          }
+        }
+      })
+      .interaction('tooltip', {
+        shared: true,
+        crosshairs: {
+          type: 'xy',
+          line: {
+            style: {
+              stroke: '#666',
+              lineWidth: 1,
+              lineDash: [4, 4]
+            }
+          }
+        }
       })
 
+    // 添加K线图的上下影线
     chart
       .link()
       .encode('y', ['min', 'max'])
+      .tooltip(false)
+      .style('stroke', (d: ChartData) => {
+        const trend = Math.sign(d.end - d.start)
+        return trend > 0 ? '#e41a1c' : trend === 0 ? '#999999' : '#33b31d'
+      })
+
+    // 添加K线实体
+    chart
+      .interval()
+      .style('fillOpacity', 1)
       .tooltip({
-        title: 'time',
+        title: (d: ChartData) => d.time,
         items: [
           { field: 'start', name: '开盘价' },
           { field: 'end', name: '收盘价' },
@@ -152,25 +213,34 @@ const StockDetail: React.FC = () => {
         ],
       })
 
-    chart
-      .interval()
-      .encode('y', ['start', 'end'])
-      .style('fillOpacity', 1)
-      .style('stroke', (d: ChartData) => {
-        if (d.start === d.end) return '#999999'
-      })
-      .axis('y', {
-        title: false,
-      })
-      .tooltip({
-        title: 'time',
-        items: [
-          { field: 'start', name: '开盘价' },
-          { field: 'end', name: '收盘价' },
-          { field: 'min', name: '最低价' },
-          { field: 'max', name: '最高价' },
-        ],
-      })
+    // 添加MA线
+    const addMALine = (field: 'ma5' | 'ma10' | 'ma20', color: string, name: string) => {
+      chart
+        .line()
+        .data(chartData.filter(d => d[field] !== undefined))
+        .encode('x', 'time')
+        .encode('y', field)
+        .encode('color', name)
+        .style('stroke', color)
+        .style('strokeWidth', 1)
+        .tooltip({
+          title: (d: ChartData) => d.time,
+          items: [
+            { field, name }
+          ]
+        })
+        .encode('shape', 'smooth')
+    }
+
+    // 添加三条均线
+    addMALine('ma5', '#FF8800', 'MA5')
+    addMALine('ma10', '#0088FF', 'MA10')
+    addMALine('ma20', '#884400', 'MA20')
+
+    // 配置图例
+    chart.legend('color', {
+      position: 'top'
+    })
 
     chart.render()
 

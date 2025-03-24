@@ -159,7 +159,11 @@
 git clone <repository_url>
 cd stock-trading
 
-# 启动服务
+# 1. 设置环境变量
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+
+# 2. 启动所有服务
 docker-compose up --build
 ```
 
